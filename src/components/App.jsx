@@ -1,112 +1,119 @@
 import { Component } from "react";
-import ContactForm from "./ContactForm/ContactForm";
-import ContactList from "./ContactList/ContactList";
-import Filter from "./Filter/Filter";
-import Notiflix from "notiflix";
-import { v4 as uuidv4 } from "uuid";
-const LS_KEY = "reader_contact";
+// import * as basicLightbox from "basiclightbox";
+import axios from "axios";
+import Searchbar from "./Searchbar/Searchbar";
+import ImageGallery from "./ImageGallery/ImageGallery";
+import MyLoader from "./Loader/Loader";
+import Button from "./Button/Button";
+// import Modal from "./Modal/Modal";
+
+axios.defaults.baseURL = "https://pixabay.com/api/";
+
 export class App extends Component {
   state = {
-    contacts: [],
-    filter: "",
+    articles: [],
+    isLoading: false,
+    q: "cat",
+    page: 1,
+    totalHits: 0,
+    error: null,
+    lastQ: "",
+    openModal: false,
   };
 
-  componentDidMount() {
-    const cont = this.state.contacts;
-    const index = localStorage.getItem(LS_KEY);
-    if (index !== null) {
-      JSON.parse(index).map((contact) =>
-        cont.push({
-          id: uuidv4(),
-          name: contact.name,
-          number: contact.number,
-        })
+  async componentDidMount() {
+    this.setState({ isLoading: true });
+    try {
+      const response = await axios.get(
+        `?q=${this.state.q}&page=${this.state.page}&key=25099977-05a832f59cefe7e3a7990f935&image_type=photo&orientation=horizontal&per_page=12`
       );
-
-      this.setState({ contacts: cont });
+      this.setState({ articles: response.data.hits });
+      this.setState({ totalHits: response.data.totalHits });
+      console.log(response.data.hits);
+    } catch (error) {
+      this.setState({ error });
+    } finally {
+      this.setState({ isLoading: false });
+    }
+  }
+  async componentDidUpdate(_, prevState) {
+    if (prevState.page !== this.state.page || prevState.q !== this.state.q) {
+      this.setState({ isLoading: true });
+      let last = this.state.articles;
+      try {
+        const response = await axios.get(
+          `?page=${this.state.page}&key=25099977-05a832f59cefe7e3a7990f935&image_type=photo&orientation=horizontal&per_page=12`
+        );
+        last.push(...response.data.hits);
+        this.setState({ articles: last });
+      } catch (error) {
+        this.setState({ error });
+      } finally {
+        this.setState({ isLoading: false });
+      }
     }
   }
 
-  componentDidUpdate(_, prevState) {
-    console.log("next", prevState.name);
-    //console.log("current", this.state.contacts);
-    console.log(this.state.name);
-    if (this.state.name !== prevState.name) {
-      localStorage.setItem(LS_KEY, JSON.stringify(this.state.contacts));
-    }
-  }
-  handelChangeName = (e) => {
-    this.setState({
-      name: e.target.value,
-    });
+  loadMore = () => {
+    this.setState((prevState) => ({
+      page: prevState.page + 1,
+    }));
   };
-  handelChangeTel = (e) => {
-    this.setState({
-      number: e.target.value,
-    });
-  };
-  saveChange = () => {
-    const name = this.state.name;
-    const number = this.state.number;
-    let cont = this.state.contacts;
-    if (name === undefined || number === undefined) {
-      return Notiflix.Notify.warning("Write name or number");
-    }
-    for (let i = 0; i < cont.length; i++) {
-      if (cont[i].name === name) {
-        return Notiflix.Notify.info(`${name} is already is contacts`);
-      }
-    }
-    cont.push({
-      id: uuidv4(),
-      name: this.state.name,
-      number: this.state.number,
-    });
-    return this.setState({
-      contacts: cont,
-      name: "",
-      number: "",
-    });
-  };
-  handleFilter = (e) => {
-    this.setState({
-      filter: e.target.value,
-    });
-  };
-  filterName = (name) => {
-    return name.toLowerCase().indexOf(this.state.filter.toLowerCase()) !== -1;
-  };
-  deleteContacts = (e) => {
-    let deleteCont = [...this.state.contacts];
 
-    for (let i = 0; i < this.state.contacts.length; i++) {
-      if (e.target.id === this.state.contacts[i].id) {
-        deleteCont.splice(i, 1);
-      }
-    }
-    this.setState({ contacts: deleteCont });
+  handelChange = (e) => {
+    this.setState({
+      q: e.target.value,
+    });
   };
+  handleSubmit = async (e) => {
+    e.preventDefault();
+    if (this.state.q !== this.state.lastQ) {
+      try {
+        const response = await axios.get(
+          `?q=${this.state.q}&page=1&key=25099977-05a832f59cefe7e3a7990f935&image_type=photo&orientation=horizontal&per_page=12`
+        );
+        this.setState({ articles: response.data.hits });
+        this.setState({ totalHits: response.data.totalHits });
+        this.setState({ lastQ: this.state.q });
+      } catch (error) {
+        this.setState({ error });
+      }
+    } else {
+      alert("Ви вже ввели це слово");
+    }
+  };
+  handleModalOpen = () => {
+    this.setState({ openModal: true });
+  };
+  handleModalClose = () => {
+    this.setState({ openModal: false });
+  };
+
   render() {
-    const contacts = this.state.contacts;
-    const filter = this.state.filter;
+    const { articles, isLoading, q, totalHits, openModal } = this.state;
+
     return (
       <div>
-        <h1>PhoneBook</h1>
-        <ContactForm
-          handelChangeName={this.handelChangeName}
-          handelChangeTel={this.handelChangeTel}
-          name={contacts}
-          tel={contacts}
-          saveChange={this.saveChange}
+        <Searchbar
+          handelChange={this.handelChange}
+          value={q}
+          handleSubmit={this.handleSubmit}
         />
-
-        <h2>Contacts</h2>
-        <Filter filter={filter} handelFilter={this.handleFilter} />
-        <ContactList
-          contacts={contacts}
-          filterName={this.filterName}
-          deleteContacts={this.deleteContacts}
-        />
+        {isLoading ? (
+          <MyLoader />
+        ) : (
+          <ImageGallery
+            articles={articles}
+            openModal={openModal}
+            handleModalOpen={this.handleModalOpen}
+            handleModalClose={this.handleModalClose}
+          />
+        )}
+        {totalHits !== articles.length ? (
+          <Button loadMore={this.loadMore} />
+        ) : (
+          <p> No more results</p>
+        )}
       </div>
     );
   }
