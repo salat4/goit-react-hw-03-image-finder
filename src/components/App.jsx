@@ -5,7 +5,7 @@ import Searchbar from "./Searchbar/Searchbar";
 import ImageGallery from "./ImageGallery/ImageGallery";
 import MyLoader from "./Loader/Loader";
 import Button from "./Button/Button";
-// import Modal from "./Modal/Modal";
+import Modal from "./Modal/Modal";
 
 axios.defaults.baseURL = "https://pixabay.com/api/";
 
@@ -13,7 +13,7 @@ export class App extends Component {
   state = {
     articles: [],
     isLoading: false,
-    q: "cat",
+    q: "",
     page: 1,
     totalHits: 0,
     error: null,
@@ -29,7 +29,6 @@ export class App extends Component {
       );
       this.setState({ articles: response.data.hits });
       this.setState({ totalHits: response.data.totalHits });
-      console.log(response.data.hits);
     } catch (error) {
       this.setState({ error });
     } finally {
@@ -37,8 +36,8 @@ export class App extends Component {
     }
   }
   async componentDidUpdate(_, prevState) {
-    if (prevState.page !== this.state.page || prevState.q !== this.state.q) {
-      this.setState({ isLoading: true });
+    if (prevState.page !== this.state.page) {
+      // this.setState({ isLoading: true });
       let last = this.state.articles;
       try {
         const response = await axios.get(
@@ -48,9 +47,10 @@ export class App extends Component {
         this.setState({ articles: last });
       } catch (error) {
         this.setState({ error });
-      } finally {
-        this.setState({ isLoading: false });
       }
+      // } finally {
+      //   this.setState({ isLoading: false });
+      // }
     }
   }
 
@@ -64,6 +64,7 @@ export class App extends Component {
     this.setState({
       q: e.target.value,
     });
+    console.log(e.target.id);
   };
   handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,8 +83,9 @@ export class App extends Component {
       alert("Ви вже ввели це слово");
     }
   };
-  handleModalOpen = () => {
+  handleModalOpen = (e) => {
     this.setState({ openModal: true });
+    console.log(e.target.alt);
   };
   handleModalClose = () => {
     this.setState({ openModal: false });
@@ -108,6 +110,9 @@ export class App extends Component {
             handleModalOpen={this.handleModalOpen}
             handleModalClose={this.handleModalClose}
           />
+        )}{" "}
+        {openModal === true && (
+          <Modal articles={articles} handleModalClose={this.handleModalClose} />
         )}
         {totalHits !== articles.length ? (
           <Button loadMore={this.loadMore} />

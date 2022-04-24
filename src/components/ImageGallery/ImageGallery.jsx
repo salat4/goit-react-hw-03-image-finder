@@ -1,5 +1,5 @@
 import ImageGalleryItem from "../ImageGalleryItem/ImageGalleryItem";
-import Modal from "../Modal/Modal";
+// import Modal from "../Modal/Modal";
 
 const ImageGallery = ({
   articles,
@@ -19,18 +19,8 @@ const ImageGallery = ({
           handleModalClose={handleModalClose}
           openModal={openModal}
         />
-
-        //         <ImageGalleryItem
-        //   articles={articles}
-        //   handleModalOpen={handleModalOpen}
-        //   handleModalClose={handleModalClose}
-        //   openModal={openModal}
-        // />
       ))}
     </ul>
-    {openModal === true && (
-      <Modal articles={articles} handleModalClose={handleModalClose} />
-    )}
   </>
 );
 export default ImageGallery;

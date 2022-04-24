@@ -10,7 +10,7 @@ const ImageGalleryItem = ({
   openModal,
 }) => (
   <li key={id}>
-    <img src={previewURL} alt={tags} onClick={handleModalOpen}></img>
+    <img src={previewURL} alt={id} onClick={handleModalOpen}></img>
   </li>
 );
 export default ImageGalleryItem;
