@@ -90,7 +90,9 @@ export class App extends Component {
     this.setState({ openModal: true });
     const largeImageURL = this.state.articles.find(Image =>Image.id.toString() === e.target.alt).largeImageURL 
     this.setState({ largeImageURL: largeImageURL })
+
     disablePageScroll();
+
 
 
   };
