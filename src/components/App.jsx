@@ -6,6 +6,9 @@ import ImageGallery from "./ImageGallery/ImageGallery";
 import MyLoader from "./Loader/Loader";
 import Button from "./Button/Button";
 import Modal from "./Modal/Modal";
+import { disablePageScroll, enablePageScroll } from 'scroll-lock';
+
+
 
 axios.defaults.baseURL = "https://pixabay.com/api/";
 
@@ -87,10 +90,13 @@ export class App extends Component {
     this.setState({ openModal: true });
     const largeImageURL = this.state.articles.find(Image =>Image.id.toString() === e.target.alt).largeImageURL 
     this.setState({ largeImageURL: largeImageURL })
+    disablePageScroll();
+
 
   };
   handleModalClose = () => {
     this.setState({ openModal: false });
+    enablePageScroll();
   };
 
   render() {
