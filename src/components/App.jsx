@@ -38,7 +38,13 @@ export class App extends Component {
     } finally {
       this.setState({ isLoading: false });
     }
+    document.addEventListener("keydown", this.handleModalCloseEsc, false);
+
   }
+  componentWillUnmount(){
+    document.addEventListener("keydown", this.handleModalCloseEsc, false);
+  }
+
   async componentDidUpdate(_, prevState) {
     if (prevState.page !== this.state.page) {
       // this.setState({ isLoading: true });
@@ -100,6 +106,12 @@ export class App extends Component {
     this.setState({ openModal: false });
     enablePageScroll();
   };
+  handleModalCloseEsc = (e) => {  
+    console.log(e.key)
+    if (e.key === "Escape") { this.setState({ openModal: false });
+    enablePageScroll()}
+    
+  }
 
   render() {
     const { articles, isLoading, q, totalHits, openModal } = this.state;
@@ -122,7 +134,7 @@ export class App extends Component {
           />
         )}{" "}
         {openModal === true && (
-          <Modal  handleModalClose={this.handleModalClose} largeImageURL = {this.state.largeImageURL} />
+          <Modal  handleModalClose={this.handleModalClose} largeImageURL = {this.state.largeImageURL} handleModalCloseEsc = {this.handleModalCloseEsc} />
         )}
         {totalHits !== articles.length ? (
           <Button loadMore={this.loadMore} />
