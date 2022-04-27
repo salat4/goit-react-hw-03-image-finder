@@ -1,10 +1,8 @@
 import styles from "./Modal.module.css";
-const Modal = ({ articles, handleModalClose }) => (
+const Modal = ({handleModalClose,largeImageURL }) => (
   <div className={styles.Overlay} onClick={handleModalClose}>
     <div className={styles.Modal}>
-      {articles.map(({ tags, largeImageURL, id }) => (
-        <img src={largeImageURL} alt={id}></img>
-      ))}
+   <img src={largeImageURL} alt={"largeImageURL"}></img>     
     </div>
   </div>
 );

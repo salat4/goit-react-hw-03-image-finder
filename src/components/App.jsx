@@ -19,6 +19,7 @@ export class App extends Component {
     error: null,
     lastQ: "",
     openModal: false,
+    largeImageURL:"",
   };
 
   async componentDidMount() {
@@ -64,7 +65,6 @@ export class App extends Component {
     this.setState({
       q: e.target.value,
     });
-    console.log(e.target.id);
   };
   handleSubmit = async (e) => {
     e.preventDefault();
@@ -85,7 +85,9 @@ export class App extends Component {
   };
   handleModalOpen = (e) => {
     this.setState({ openModal: true });
-    console.log(e.target.alt);
+    const largeImageURL = this.state.articles.find(Image =>Image.id.toString() === e.target.alt).largeImageURL 
+    this.setState({ largeImageURL: largeImageURL })
+
   };
   handleModalClose = () => {
     this.setState({ openModal: false });
@@ -112,7 +114,7 @@ export class App extends Component {
           />
         )}{" "}
         {openModal === true && (
-          <Modal articles={articles} handleModalClose={this.handleModalClose} />
+          <Modal  handleModalClose={this.handleModalClose} largeImageURL = {this.state.largeImageURL} />
         )}
         {totalHits !== articles.length ? (
           <Button loadMore={this.loadMore} />
