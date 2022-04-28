@@ -16,42 +16,21 @@ export class App extends Component {
   state = {
     articles: [],
     isLoading: false,
-    q: "",
+    query : "",
     page: 1,
     totalHits: 0,
     error: null,
-    lastQ: "",
+    lastQuery: "",
     openModal: false,
     largeImageURL:"",
   };
-
-  async componentDidMount() {
-    this.setState({ isLoading: true });
-    try {
-      const response = await axios.get(
-        `?q=${this.state.q}&page=${this.state.page}&key=25099977-05a832f59cefe7e3a7990f935&image_type=photo&orientation=horizontal&per_page=12`
-      );
-      this.setState({ articles: response.data.hits });
-      this.setState({ totalHits: response.data.totalHits });
-    } catch (error) {
-      this.setState({ error });
-    } finally {
-      this.setState({ isLoading: false });
-    }
-    document.addEventListener("keydown", this.handleModalCloseEsc, false);
-
-  }
-  componentWillUnmount(){
-    document.addEventListener("keydown", this.handleModalCloseEsc, false);
-  }
-
   async componentDidUpdate(_, prevState) {
     if (prevState.page !== this.state.page) {
       // this.setState({ isLoading: true });
       let last = this.state.articles;
       try {
         const response = await axios.get(
-          `?page=${this.state.page}&key=25099977-05a832f59cefe7e3a7990f935&image_type=photo&orientation=horizontal&per_page=12`
+          `?q=${this.state.query}&page=${this.state.page}&key=25099977-05a832f59cefe7e3a7990f935&image_type=photo&orientation=horizontal&per_page=12`
         );
         last.push(...response.data.hits);
         this.setState({ articles: last });
@@ -64,32 +43,37 @@ export class App extends Component {
     }
   }
 
-  loadMore = () => {
-    this.setState((prevState) => ({
-      page: prevState.page + 1,
-    }));
+  loadMore = async() => {
+      this.setState((prevState) => ({
+        page: prevState.page + 1,
+        
+      }));
   };
 
   handelChange = (e) => {
     this.setState({
-      q: e.target.value,
+      query: e.target.value,
     });
   };
   handleSubmit = async (e) => {
     e.preventDefault();
-    if (this.state.q !== this.state.lastQ) {
+    if (this.state.query === "") {
+      return  alert("Введіть слово");
+    }
+    if (this.state.query !== this.state.lastQuery) {
       try {
         const response = await axios.get(
-          `?q=${this.state.q}&page=1&key=25099977-05a832f59cefe7e3a7990f935&image_type=photo&orientation=horizontal&per_page=12`
+          `?q=${this.state.query}&page=1&key=25099977-05a832f59cefe7e3a7990f935&image_type=photo&orientation=horizontal&per_page=12`
         );
         this.setState({ articles: response.data.hits });
         this.setState({ totalHits: response.data.totalHits });
-        this.setState({ lastQ: this.state.q });
+        this.setState({ lastQuery: this.state.query });
       } catch (error) {
         this.setState({ error });
       }
-    } else {
-      alert("Ви вже ввели це слово");
+    } 
+    else {
+      alert ("Ви вже ввели це слово")
     }
   };
   handleModalOpen = (e) => {
@@ -107,20 +91,19 @@ export class App extends Component {
     enablePageScroll();
   };
   handleModalCloseEsc = (e) => {  
-    console.log(e.key)
     if (e.key === "Escape") { this.setState({ openModal: false });
     enablePageScroll()}
     
   }
 
   render() {
-    const { articles, isLoading, q, totalHits, openModal } = this.state;
+    const { articles, isLoading, query, totalHits, openModal } = this.state;
 
     return (
       <div>
         <Searchbar
           handelChange={this.handelChange}
-          value={q}
+          value={query}
           handleSubmit={this.handleSubmit}
         />
         {isLoading ? (
@@ -136,11 +119,10 @@ export class App extends Component {
         {openModal === true && (
           <Modal  handleModalClose={this.handleModalClose} largeImageURL = {this.state.largeImageURL} handleModalCloseEsc = {this.handleModalCloseEsc} />
         )}
-        {totalHits !== articles.length ? (
+        {totalHits !== articles.length && (
+          query !== "" &&(
           <Button loadMore={this.loadMore} />
-        ) : (
-          <p> No more results</p>
-        )}
+        ))}
       </div>
     );
   }

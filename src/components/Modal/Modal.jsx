@@ -1,10 +1,22 @@
 import styles from "./Modal.module.css";
-const Modal = ({handleModalClose,largeImageURL,handleModalCloseEsc }) => (
-<div className={styles.Overlay} onClick={handleModalClose} onKeyDown={handleModalCloseEsc} tabIndex={0}>
+import { Component } from "react";
+class Modal extends Component {
+    componentDidMount() {
+        document.addEventListener("keydown", this.props.handleModalCloseEsc, false);
+    }
+
+    componentWillUnmount() {
+        document.addEventListener("keydown", this.props.handleModalCloseEsc, false);
+    }
+    render () {
+    const {largeImageURL} = this.props
+    return (
+        <div className={styles.Overlay} onClick={this.props.handleModalClose} onKeyDown={this.props.handleModalCloseEsc} tabIndex={0}>
     <div className={styles.Modal}>
    <img src={largeImageURL} alt={"largeImageURL"}></img>     
     </div>
-    </div>
+    </div>)
+}
+}
 
-);
 export default Modal;
