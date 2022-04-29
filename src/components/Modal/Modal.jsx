@@ -2,11 +2,11 @@ import styles from "./Modal.module.css";
 import { Component } from "react";
 class Modal extends Component {
     componentDidMount() {
-        document.addEventListener("keydown", this.props.handleModalCloseEsc, false);
+        window.addEventListener("keydown", this.props.handleModalCloseEsc, false);
     }
 
     componentWillUnmount() {
-        document.addEventListener("keydown", this.props.handleModalCloseEsc, false);
+        window.removeEventListener("keydown", this.props.handleModalCloseEsc, false);
     }
     render () {
     const {largeImageURL} = this.props
